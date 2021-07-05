@@ -3,7 +3,6 @@
 # MESSAGING
 ##############################
 sourced=0
-# LOG_LEVEL=8
 
 function sourced_on() {
   sourced=1
@@ -37,31 +36,28 @@ function invoke() {
 }
 
 function invoke_response() {
-  if [ "${LOG_LEVEL-0}" -ge 8 ]
+  if [ "${LOG_LEVEL-0}" -ge 4 ]
   then
     msg "${ORANGE}[ Invoke]($1): exit: $2 ${NOFORMAT}"
   fi
 }
 
 function debug() {
-  if [ "${LOG_LEVEL-0}" -ge 4 ]
+  if [ "${LOG_LEVEL-0}" -ge 2 ]
   then
     msg "${CYAN}[ DEBUG ]: $1${NOFORMAT}"
   fi
 }
 
 function info() {
-  if [ "${LOG_LEVEL-0}" -ge 2 ]
+  if [ "${LOG_LEVEL-0}" -ge 1 ]
   then
     msg "${BLUE}[ INFO  ]: $1${NOFORMAT}"
   fi
 }
 
 function warning() {
-  if [ "${LOG_LEVEL-0}" -ge 1 ]
-  then
     msg "${PURPLE}[Warning]: $1${NOFORMAT}"
-  fi
 }
 
 function error() {
