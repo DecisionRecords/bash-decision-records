@@ -152,7 +152,7 @@ function _get_config_language() {
   else
     info "Configuration value 'language' not found in $config_file. Using the default value, \`$config_language\`."
   fi
-  
+
   invoke_response "_get_config_language()" "$config_language"
   echo "$config_language"
 }
@@ -239,7 +239,7 @@ function _absolute_directory() {
   invoke "absolute_directory($1)"
   # Change to this directory
   if ! cd "$1"
-  then 
+  then
     if [ "$sourced" -eq 0 ]
     then
       return 1
@@ -337,7 +337,7 @@ function decision_record_config_path() {
     fi
 
     info "Using config file: $config_file"
-        
+
     config_path="doc/decision_records" # Default value
     if [ -f "$config_file" ] && grep --extended-regexp --regexp='^records=' "$config_file" >/dev/null 2>&1
     then
@@ -575,7 +575,7 @@ function _set_status() {
   local append=0
 
   local in_status=0
-  
+
   file="$1"
   _create "$1~"
   set_line="$2"
@@ -659,7 +659,7 @@ function _get_title() {
   then
     error "Unable to find a title in $1. Please check and submit a PR." 1
   fi
-  
+
   invoke_response "_get_title(file='$1')" "$title"
   echo "$title"
 }
@@ -679,7 +679,7 @@ function _add_link() {
 
   local decision_record_config_template_type
   decision_record_config_template_type="$(decision_record_config_template_type)"
-  
+
   if [ "$decision_record_config_template_type" == "md" ]
   then
     from_line="$(echo "$from_string" | sed -e "s/#/\[$to_title\]\($to_file\)/")"
