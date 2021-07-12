@@ -1,0 +1,98 @@
+// //////////////////////////////////////////////////////////////////////////
+// MD TEMPLATE BELOW WITHOUT FRONT MATTER.
+// //////////////////////////////////////////////////////////////////////////
+# NUMBER. TITLE
+
+Date: DATE
+
+## Status
+
+STATUS
+
+## Context
+
+This is the Context.
+
+## Decision
+
+Made a Decision.
+
+## Consequence
+
+This is the consequence of the decision.
+
+// //////////////////////////////////////////////////////////////////////////
+// MD TEMPLATE BELOW WITH FRONT MATTER.
+// //////////////////////////////////////////////////////////////////////////
+---
+title: NUMBER. TITLE
+date: "DATE"
+---
+Date: {{ date }}
+
+## Status
+
+STATUS
+
+## Context
+
+This is the Context.
+
+## Decision
+
+Made a Decision.
+
+## Consequence
+
+This is the consequence of the decision.
+
+// //////////////////////////////////////////////////////////////////////////
+// RST TEMPLATE BELOW WITHOUT FRONT MATTER.
+// //////////////////////////////////////////////////////////////////////////
+#############
+NUMBER. TITLE
+#############
+
+Date: DATE
+
+******
+Status
+******
+
+STATUS
+
+*******
+Context
+*******
+
+This is the Context.
+
+********
+Decision
+********
+
+Made a Decision.
+
+***********
+Consequence
+***********
+
+This is the consequence of the decision.
+
+// //////////////////////////////////////////////////////////////////////////
+// STRINGS BELOW
+// //////////////////////////////////////////////////////////////////////////
+
+Proposed
+Accepted
+
+Replaced by "XXYYZZ"
+Replaces "XXYYZZ"
+
+Amends "XXYYZZ"
+Amended by "XXYYZZ"
+
+Deprecates "XXYYZZ"
+Deprecated by "XXYYZZ"
+
+Linked with "XXYYZZ"

@@ -72,7 +72,7 @@ setup() {
 
 @test "02-09 No configuration returns no specific template language" {
   mkdir -p doc/decision_records/.templates
-  touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.en_GB.ref doc/decision_records/.templates/template.md
+  touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.md
   run decision_record_config_template_language
   assert_output ""
   assert_success
@@ -81,7 +81,7 @@ setup() {
 @test "02-10 Configuration file changes default template language" {
   echo "language=ko_KR" > .decisionrecords-config
   mkdir -p doc/decision_records/.templates
-  touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.en_GB.ref doc/decision_records/.templates/template.ko_KR.md doc/decision_records/.templates/template.ko_KR.ref doc/decision_records/.templates/template.md
+  touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.ko_KR.md doc/decision_records/.templates/template.md
   run decision_record_config_template_language
   assert_output "ko_KR"
   assert_success
@@ -90,7 +90,7 @@ setup() {
 @test "02-11 Configuration file changes default template language, but reverts to region language if that is the only one available" {
   echo "language=ko_KR" > .decisionrecords-config
   mkdir -p doc/decision_records/.templates
-  touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.en_GB.ref doc/decision_records/.templates/template.ko.md doc/decision_records/.templates/template.ko.ref doc/decision_records/.templates/template.md
+  touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.ko.md doc/decision_records/.templates/template.md
   run decision_record_config_template_language
   assert_output "ko"
   assert_success
@@ -108,8 +108,62 @@ setup() {
 @test "02-13 Empty Configuration file returns default template language" {
   touch .decisionrecords-config
   mkdir -p doc/decision_records/.templates
-  touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.en_GB.ref doc/decision_records/.templates/template.md
+  touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.md
   run decision_record_config_template_language
   assert_output ""
+  assert_success
+}
+
+@test "02-14 Empty Configuration file returns default template" {
+  touch .decisionrecords-config
+  mkdir -p doc/decision_records/.templates
+  touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.md
+  run get_template_path
+  assert_output "doc/decision_records/.templates/template.md"
+  assert_success
+}
+
+@test "02-15 Configuration file changes default template" {
+  echo "language=ko_KR" > .decisionrecords-config
+  mkdir -p doc/decision_records/.templates
+  touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.ko_KR.md doc/decision_records/.templates/template.md
+  run get_template_path
+  assert_output "doc/decision_records/.templates/template.ko_KR.md"
+  assert_success
+}
+
+@test "02-16 Configuration file changes default template, but reverts to region language if that is the only one available" {
+  echo "language=ko_KR" > .decisionrecords-config
+  mkdir -p doc/decision_records/.templates
+  touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.ko.md doc/decision_records/.templates/template.md
+  run get_template_path
+  assert_output "doc/decision_records/.templates/template.ko.md"
+  assert_success
+}
+
+@test "02-17 Configuration file changes default template language, but reverts to no specific template language if these languages are not available" {
+  echo "language=ko_KR" > .decisionrecords-config
+  mkdir -p doc/decision_records/.templates
+  touch doc/decision_records/.templates/template.md
+  run get_template_path
+  assert_output "doc/decision_records/.templates/template.md"
+  assert_success
+}
+
+@test "02-18 Configuration file changes default template" {
+  echo "template=random" > .decisionrecords-config
+  mkdir -p doc/decision_records/.templates
+  touch doc/decision_records/.templates/random.md
+  run get_template_path
+  assert_output "doc/decision_records/.templates/random.md"
+  assert_success
+}
+
+@test "02-19 Use different configuration file types" {
+  echo "filetype=rst" > .decisionrecords-config
+  mkdir -p doc/decision_records/.templates
+  touch doc/decision_records/.templates/template.rst
+  run get_template_path
+  assert_output "doc/decision_records/.templates/template.rst"
   assert_success
 }
