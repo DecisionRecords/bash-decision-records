@@ -28,5 +28,5 @@ setup() {
 @test "03-04 Test that specifying French language with a string replacement results in the replaced string" {
   echo "language=fr_CA" > .decisionrecords-config
   run _t 'Superseded by'
-  assert_output "Remplacé par"
+  assert_output "Remplacé par #"
 }
