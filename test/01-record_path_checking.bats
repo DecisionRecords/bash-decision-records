@@ -7,6 +7,7 @@ setup() {
   DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." >/dev/null 2>&1 && pwd -P)"
   PATH="$DIR:$PATH"
   cd "$BATS_TEST_TMPDIR"
+  BATS_TEST_TMPDIR="$(pwd -P)"
 }
 
 teardown() {

@@ -524,7 +524,7 @@ function _get_next_ref() {
   local find_record_path
   find_record_path="$(find_root_path)/$(find_record_path)"
 
-  last_reference="$(ls "$find_record_path" | grep --extended-regexp --only-matching '^[0-9]{4}-' | sort --reverse --numeric-sort | sed --expression='s/^0//' -e 's/-$//' | head -n 1)"
+  last_reference="$(ls "$find_record_path" | grep --extended-regexp --only-matching '^[0-9]{4}-' | sort --reverse --numeric-sort | sed -e 's/^0//' -e 's/-$//' | head -n 1)"
   next_reference=1
   if [ -n "$last_reference" ]
   then
@@ -539,7 +539,7 @@ function _get_next_ref() {
 function _make_slug() {
   invoke "_make_slug('$1')"
   # Slugify based on https://stackoverflow.com/a/63286099/5738
-  slug="$(echo -n "$1" | iconv -c --to-code=ascii//TRANSLIT  | tr '[:upper:]' '[:lower:]' | sed --regexp-extended --expression='s/[^a-zA-Z0-9]+/-/g ; s/^-+|-+$//g')"
+  slug="$(echo -n "$1" | iconv -c --to-code=ascii//TRANSLIT  | tr '[:upper:]' '[:lower:]' | sed -E -e 's/[^a-zA-Z0-9]+/-/g ; s/^-+|-+$//g')"
   invoke_response "_make_slug('$1')" "$slug"
   echo "$slug"
 }
