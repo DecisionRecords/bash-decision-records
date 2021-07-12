@@ -748,6 +748,15 @@ function create_record() {
       status="$(_t "Proposed")"
       shift
       ;;
+    -D | --draft)
+      empty_command=0
+      if [ -n "${status}" ]
+      then
+        error "Status already set" 1
+      fi
+      status="$(_t "Draft")"
+      shift
+      ;;
     -S | --status)
       empty_command=0
       if [ -n "${status}" ]
