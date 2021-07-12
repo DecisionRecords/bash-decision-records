@@ -467,6 +467,10 @@ function decision_record_config_template_language() {
     then
       invoke_response "decision_record_config_template_language()" "$config_language"
       echo "$config_language"
+    elif [ -n "$config_language" ] && [ -e "$find_root_path/$decision_record_config_template_dir/$decision_record_config_template_file.$(echo "$config_language" | cut -d- -f 1).$template_type" ]
+    then
+      invoke_response "decision_record_config_template_language()" "$(echo "$config_language" | cut -d- -f 1)"
+      echo "$config_language" | cut -d- -f 1
     elif [ -n "$config_language" ] && [ -e "$find_root_path/$decision_record_config_template_dir/$decision_record_config_template_file.$(echo "$config_language" | cut -d_ -f 1).$template_type" ]
     then
       invoke_response "decision_record_config_template_language()" "$(echo "$config_language" | cut -d_ -f 1)"
