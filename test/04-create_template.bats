@@ -31,7 +31,7 @@ setup() {
 }
 
 @test "04-04 Making slug strings" {
-  run _make_slug 'Aa£ B#b % Cc/ Zz., 15&9'
+  run _make_slug 'Aa B#b % Cc/ Zz., 15&9'
   assert_output "aa-b-b-cc-zz-15-9"
   assert_success
 }
