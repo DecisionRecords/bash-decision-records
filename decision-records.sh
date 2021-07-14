@@ -887,10 +887,10 @@ function _get_title() {
     then
       if [[ "$line" =~ ^([\t ]*)\# ]]
       then
-        title="$(echo "$line" | cut -d\# -f2 | sed -E -e 's/^\s*// ; s/\s*$//' )"
+        title="$(echo "$line" | cut -d\# -f2 | xargs )"
       elif [[ "$line" =~ ^([\t ]*)title= ]]
       then
-        title="$(echo "$line" | cut -d= -f2 | sed -E -e 's/^\s*// ; s/\s*$//' )"
+        title="$(echo "$line" | cut -d= -f2 | xargs )"
       fi
     elif [ "$decision_record_config_template_type" == "rst" ]
     then
@@ -899,7 +899,7 @@ function _get_title() {
         title="$lastline"
       elif [[ "$line" =~ ^([\t ]*)title= ]]
       then
-        title="$(echo "$line" | cut -d= -f2 | sed -E -e 's/^\s*// ; s/\s*$//' )"
+        title="$(echo "$line" | cut -d= -f2 | xargs )"
       fi
       lastline="$line"
     else
