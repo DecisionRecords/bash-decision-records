@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name: Basic CI Testing
 on: [push]
 jobs:
   Run-CI-on-Ubuntu:
@@ -35,6 +35,8 @@ jobs:
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
+        with:
+          ignore: test
       - name: Run tests
         run: |
           chmod +x test/test_all.sh ; test/test_all.sh
