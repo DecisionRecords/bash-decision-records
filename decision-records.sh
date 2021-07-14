@@ -800,7 +800,6 @@ function _set_status() {
   while IFS="" read -r line || [ -n "$line" ]
   do
     counter=$(( counter +1 ))
-    debug "Line $counter: $line"
     if [[ "$line" =~ ^([\t ]*)\#\#([\t ]*)$_t_Status ]]
     then
       debug "0 Line matches ^\s*##\s*$_t_Status. Incrementing in_status to $(( in_status + 1 ))."
@@ -808,15 +807,12 @@ function _set_status() {
       _write "$1~" "$line"
     elif [[ "$in_status" -gt 0 ]]
     then
-      debug "0 in_status: $in_status > 0 ✓"
       if [[ "$line" =~ ^([\t ]*)\#\# ]]
       then
-        debug "1 Line matches ^\s*##. Resetting in_status to 0."
         _write "$1~" "$line"
         in_status=0
       elif [[ "$append" -eq 0 ]]
       then
-        debug "1 append = 0"
         if [[ "$line" =~ ^([\t ]*)($_t_Status: |)($_t_Accepted|$_t_Proposed|STATUS) ]]
         then
           _write "$1~" "$line"
@@ -824,36 +820,29 @@ function _set_status() {
           status_set=1
         elif [[ "$line" =~ ^([\t ]*)$ ]]
         then
-          debug "2 Line matches ^\s*\$. Incrementing in_status to $(( in_status + 1 ))."
           in_status=$(( in_status + 1 ))
           if [ "$in_status" -eq 3 ] && [ "$status_set" -eq 0 ]
           then
-            debug "3 in_status = 3 status_set = 0"
             _write "$1~" "$set_line"
           else
             _write "$1~" "$line"
           fi
         else
-          debug "2 No line match"
           _write "$1~" "$line"
         fi
       elif [[ "$append" -eq 1 ]]
       then
-        debug "1 append = 1 ✓"
         if [[ "$line" =~ ^([\t ]*)$ ]]
         then
-          debug "2 Line matches ^\s*\$. Incrementing in_status to $(( in_status + 1 ))."
           in_status=$(( in_status + 1 ))
           if [ "$in_status" -eq 3 ]
           then
-            debug "3 in_status = 3"
             _write "$1~" "$set_line"
           fi
         fi
         _write "$1~" "$line"
       fi
     else
-      debug "0 No other matches"
       _write "$1~" "$line"
     fi
   done < "$full_decision_record_path/$file"
