@@ -1,4 +1,4 @@
-date=Datum
-context=Kontext
-decision=Entscheidung
-consequence=Konsequenz
+date="Datum"
+context="Kontext"
+decision="Entscheidung"
+consequence="Konsequenz"

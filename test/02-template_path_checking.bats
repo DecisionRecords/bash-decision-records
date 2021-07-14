@@ -8,15 +8,20 @@ setup() {
   mkdir -p doc/decision_records
 }
 
+teardown() {
+  cd /
+  rm -Rf "$BATS_TEST_TMPDIR"
+}
+
 @test "02-01 No configuration returns default template directory name which fails as it does not exist" {
-  run decision_record_config_template_dir
+  run _get_decision_record_config_template_dir
   assert_output '[ Error ]: Template Directory `doc/decision_records/.templates` is missing. Unable to proceed.'
   assert_failure
 }
 
 @test "02-02 No configuration returns default template directory name" {
   mkdir -p doc/decision_records/.templates
-  run decision_record_config_template_dir
+  run _get_decision_record_config_template_dir
   assert_output 'doc/decision_records/.templates'
   assert_success
 }
@@ -24,7 +29,7 @@ setup() {
 @test "02-03 Configuration file changes default template directory name" {
   echo "templatedir=random" > .decisionrecords-config
   mkdir -p random
-  run decision_record_config_template_dir
+  run _get_decision_record_config_template_dir
   assert_output "random"
   assert_success
 }
@@ -32,14 +37,14 @@ setup() {
 @test "02-04 Empty Configuration file returns default template directory name" {
   touch .decisionrecords-config
   mkdir -p doc/decision_records/.templates
-  run decision_record_config_template_dir
+  run _get_decision_record_config_template_dir
   assert_output "doc/decision_records/.templates"
   assert_success
 }
 
 @test "02-05 No configuration returns default template file name which fails as it does not exist" {
   mkdir -p doc/decision_records/.templates
-  run decision_record_config_template_file
+  run _get_decision_record_config_template_file
   assert_output '[ Error ]: Template `doc/decision_records/.templates/template.md` is missing. Unable to proceed.'
   assert_failure
 }
@@ -47,7 +52,7 @@ setup() {
 @test "02-06 No configuration returns default template file name" {
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.md
-  run decision_record_config_template_file
+  run _get_decision_record_config_template_file
   assert_output "template"
   assert_success
 }
@@ -56,7 +61,7 @@ setup() {
   echo "template=random" > .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/random.md
-  run decision_record_config_template_file
+  run _get_decision_record_config_template_file
   assert_output "random"
   assert_success
 }
@@ -65,7 +70,7 @@ setup() {
   touch .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.md
-  run decision_record_config_template_file
+  run _get_decision_record_config_template_file
   assert_output "template"
   assert_success
 }
@@ -73,7 +78,7 @@ setup() {
 @test "02-09 No configuration returns no specific template language" {
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.md
-  run decision_record_config_template_language
+  run _get_decision_record_config_template_language
   assert_output ""
   assert_success
 }
@@ -82,7 +87,7 @@ setup() {
   echo "language=ko_KR" > .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.ko_KR.md doc/decision_records/.templates/template.md
-  run decision_record_config_template_language
+  run _get_decision_record_config_template_language
   assert_output "ko_KR"
   assert_success
 }
@@ -91,7 +96,7 @@ setup() {
   echo "language=ko_KR" > .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.ko.md doc/decision_records/.templates/template.md
-  run decision_record_config_template_language
+  run _get_decision_record_config_template_language
   assert_output "ko"
   assert_success
 }
@@ -100,7 +105,7 @@ setup() {
   echo "language=ko_KR" > .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.md
-  run decision_record_config_template_language
+  run _get_decision_record_config_template_language
   assert_output ""
   assert_success
 }
@@ -109,7 +114,7 @@ setup() {
   touch .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.md
-  run decision_record_config_template_language
+  run _get_decision_record_config_template_language
   assert_output ""
   assert_success
 }
@@ -118,7 +123,7 @@ setup() {
   touch .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.md
-  run get_template_path
+  run _get_decision_record_config_template_path
   assert_output "doc/decision_records/.templates/template.md"
   assert_success
 }
@@ -127,7 +132,7 @@ setup() {
   echo "language=ko_KR" > .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.ko_KR.md doc/decision_records/.templates/template.md
-  run get_template_path
+  run _get_decision_record_config_template_path
   assert_output "doc/decision_records/.templates/template.ko_KR.md"
   assert_success
 }
@@ -136,7 +141,7 @@ setup() {
   echo "language=ko_KR" > .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.en_GB.md doc/decision_records/.templates/template.ko.md doc/decision_records/.templates/template.md
-  run get_template_path
+  run _get_decision_record_config_template_path
   assert_output "doc/decision_records/.templates/template.ko.md"
   assert_success
 }
@@ -145,7 +150,7 @@ setup() {
   echo "language=ko_KR" > .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.md
-  run get_template_path
+  run _get_decision_record_config_template_path
   assert_output "doc/decision_records/.templates/template.md"
   assert_success
 }
@@ -154,7 +159,7 @@ setup() {
   echo "template=random" > .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/random.md
-  run get_template_path
+  run _get_decision_record_config_template_path
   assert_output "doc/decision_records/.templates/random.md"
   assert_success
 }
@@ -163,7 +168,7 @@ setup() {
   echo "filetype=rst" > .decisionrecords-config
   mkdir -p doc/decision_records/.templates
   touch doc/decision_records/.templates/template.rst
-  run get_template_path
+  run _get_decision_record_config_template_path
   assert_output "doc/decision_records/.templates/template.rst"
   assert_success
 }

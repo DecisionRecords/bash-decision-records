@@ -1,4 +1,4 @@
-status=Statut
-context=Le contexte
-decision=Décision
-consequence=Conséquence
+status="Statut"
+context="Le contexte"
+decision="Décision"
+consequence="Conséquence"

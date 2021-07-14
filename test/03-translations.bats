@@ -8,6 +8,11 @@ setup() {
   mkdir -p doc/decision_records
 }
 
+teardown() {
+  cd /
+  rm -Rf "$BATS_TEST_TMPDIR"
+}
+
 @test "03-01 Test that no language results in exact string replacement" {
   run _t "This is a test"
   assert_output "This is a test"
@@ -27,6 +32,6 @@ setup() {
 
 @test "03-04 Test that specifying French language with a string replacement results in the replaced string" {
   echo "language=fr_CA" > .decisionrecords-config
-  run _t 'Superseded by'
+  run _t 'Superseded by #'
   assert_output "Remplacé par #"
 }
