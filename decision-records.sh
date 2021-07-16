@@ -1,7 +1,4 @@
 #!/bin/bash
-
-set -eo pipefail
-
 ###################################################################################################
 # License: Zero-Clause BSD (0BSD)
 # Permission to use, copy, modify, and/or distribute this software for any purpose with or without
@@ -15,17 +12,17 @@ set -eo pipefail
 # OF THIS SOFTWARE.
 ###################################################################################################
 
-###################################################################################################
-# # Purpose of this script
-#
+set -eo pipefail
+
+# @file decision-records.sh
+# @brief A tool to create and maintain Decision Records.
+# @description
 # This script is intended to automate the process of adding and updating Decision Records (DR),
 # sometimes known as "Architectural Decision Records" (ADR). A DR is a simple file which explains
 # why a decision was made at a particular time, the context in which that decision was made, and
 # what implications it may have. These files reside in a specific directory, and have a specific
 # naming structure. Linking between documents is recommended, and replacing documents should be
 # fairly commonplace.
-#
-# ## Running the script
 #
 # You are expected to run `decision-record.sh init` to create a directory structure, then
 # `decision-record.sh new Decision to use foo` which will create a file called
@@ -35,40 +32,26 @@ set -eo pipefail
 # which has a link showing that this record supersedes the previous record.
 #
 # Additional options will be available in the help, found when you run `decision-record.sh help`.
-###################################################################################################
+#
 # ## Language support and file paths
 #
 # There is a configuration file format you can use in any root directory, similar in concept to the
 # .gitconfig or .vscode file, which is called `.decisionrecords-config`. This file can replace
-# default paths for:
+# default settings (listed after the `=`` in each example) for:
 #
-# * The records directory:
-#   * Default `doc/decision_records`
-#   * Configure `records=new relative path` to change to "new relative path"
-# * The path to the templates:
-#   * Default `$(records)/.templates`
-#   * Configure `templatedir=relative/path/to/template directory` to change it to this new path
-# * The type of template file we can use:
-#   * Default `md`
-#   * Configure `filetype=rst` to change to Restructured Text.
-#   * Options: Currently, only `rst` and `md` are supported. If other templates are available,
-#       please raise a PR to support them!
-# * The name of the template file to use:
-#   * Default `template`
-#   * Configure `template=decision record template` to change the file prefix (excluding language
-#       and format) to this new path.
-# * The language of the template and string replacements to use:
-#  * Default `en`
-#  * Configure `language=zh-CN` to use Chinese with Simplified Characters, `language=de_DE` to use
-#              "Standard German", or `language=fr` to use French with no country localization.
-#  * Notes: This language field should be represented using the ISO-639-1 code for the langauge,
-#      e.g. `en`, then if a dialect is to be selected, add an underscore or hyphen then the
-#      dialect code, using the ISO-3166-1 Alpha 2 code for the country, e.g. `GB`. For more
-#      examples, see [the wikipedia page on Language
-#      Localisation](https://en.wikipedia.org/wiki/Language_localisation).  This configuration
-#      relies on the provision of relevant template and translation strings. If a language is
-#      defined, but not available, the script will fall-back to English.
-###################################################################################################
+# * The "Records" directory with `records=doc/decision_records`
+# * The path to the templates with `templatedir=${records}/.templates`
+# * The type of template file we can use with `filetype=md`. Note that `md` and `rst` are all that
+# are supported at this time. If other templates are available, please raise a PR to support them!
+# * The filename prefix of the template file to use with `template=template`
+# * The language of the template and string replacements to use with `language=en`. Note that this
+# language field should be represented using the ISO-639-1 code for the langauge, e.g. `en`, then
+# if a dialect is to be selected, add an underscore or hyphen then the dialect code, using the 
+# ISO-3166-1 Alpha 2 code for the country, e.g. `GB`. For more examples, see [the wikipedia page 
+# on Language Localisation](https://en.wikipedia.org/wiki/Language_localisation). This 
+# configuration relies on the provision of relevant template and translation strings. If a language
+# is defined, but not available, the script will fall-back to English (`en`).
+#
 # ## Templates
 #
 # The template file should be stored, according to the language block just mentioned, and needs to
@@ -89,10 +72,23 @@ set -eo pipefail
 # * A string matching the regular expression `^\s*title=.*$`
 #
 # This will be injected into the link text whenever a record link is performed.
-###################################################################################################
+#
+# @license [Zero-Clause BSD (0BSD)](LICENSE)
 
 # Translate Functions
 # shellcheck disable=SC2005 # @TODO: See if we can figure out how to do `echo "" | cut` without using `echo`... :)
+# @description
+# This function parses the `$template.ref` file looking for specific strings to use in the context
+# of the template.
+#
+# @stdout `Datum`
+#
+# @see _t()
+#
+# @example
+#   # Given language=de-DE
+#   $ _tt date
+#
 function _tt() {
   invoke "_tt(string='$1')"
   invoke_response "_tt(string='$1')" "<INLINE>"
@@ -147,6 +143,18 @@ function _tt() {
   fi
 }
 
+# @description
+# This function does a string replacement based on key values. Where follow-up values are expected
+# e.g. "Superseded by <a value>", the "<a value>" part should use the `#` character in the string
+#
+# @stdout `Akzeptiert`
+#
+# @see _tt()
+#
+# @example
+#   # Given language=de-DE
+#   $ _t Accepted
+#
 function _t() {
   invoke "_t(string='$1')"
   invoke_response "_t(string='$1')" "<INLINE>"
@@ -199,6 +207,10 @@ function _t() {
   echo "$1"
 }
 
+# # internal
+# @description
+# For unit testing purposes, return the result of the function `decision_record_language`.
+# @see decision_record_language()
 function _get_decision_record_language() {
   decision_record_language
   echo "$decision_record_language"
@@ -271,6 +283,41 @@ function invoke() {
 
 function invoke_response() {
   if [ "${LOG_LEVEL-0}" -ge 4 ]
+  then
+    msg ""
+    msg "${ORANGE}[Respond]: $2 ${NOFORMAT}"
+    msg "${ORANGE}[InvokeR]<$DEPTH>: exit: ${NOFORMAT}"
+    msg ""
+  fi
+  IFS=">" read -r -a DEPTHITEM <<< "$DEPTH"
+  DEPTH=""
+  LASTITEM=""
+  for ITEM in "${DEPTHITEM[@]}"
+  do
+    if [ -n "$DEPTH" ]
+    then
+      DEPTH="$DEPTH>"
+    fi
+    DEPTH="${DEPTH}${LASTITEM}"
+    LASTITEM="$ITEM"
+  done
+}
+
+function invoke_detail() {
+  if [ -n "$DEPTH" ]
+  then
+    DEPTH="$DEPTH>"
+  fi
+  DEPTH="$DEPTH$1"
+  if [ "${LOG_LEVEL-0}" -ge 32 ]
+  then
+    msg "${ORANGE}[Invoke ]<$DEPTH>: start${NOFORMAT}"
+    msg ""
+  fi
+}
+
+function invoke_response_detail() {
+  if [ "${LOG_LEVEL-0}" -ge 16 ]
   then
     msg ""
     msg "${ORANGE}[Respond]: $2 ${NOFORMAT}"
@@ -636,6 +683,36 @@ function decision_record_config_template_language() {
   fi
 }
 
+function _get_decision_record_config_add_date_to_status() {
+  decision_record_config_add_date_to_status
+  echo "$decision_record_config_add_date_to_status"
+}
+
+function decision_record_config_add_date_to_status() {
+  invoke "decision_record_config_add_date_to_status()"
+
+  if [ -z "$decision_record_config_add_date_to_status" ]
+  then
+    if [ -z "$decision_record_root" ]
+    then
+      decision_record_root
+    fi
+
+    local config_file
+    config_file="$decision_record_root/.decisionrecords-config"
+
+    decision_record_config_add_date_to_status="no" # Default value
+    if [ -f "$config_file" ] && grep -E -e '^dateOnStatus=' "$config_file" >/dev/null 2>&1
+    then
+      decision_record_config_add_date_to_status="$(grep -E -e '^dateOnStatus=' "$config_file" | head -n 1 | cut -d= -f2)"
+    else
+      info "Configuration value 'dateOnStatus' not found in $config_file. Using the default value, \`$decision_record_config_add_date_to_status\`."
+    fi
+  fi
+
+  invoke_response "decision_record_config_add_date_to_status()" "$decision_record_config_add_date_to_status"
+}
+
 ##############################
 # Create Items
 ##############################
@@ -736,7 +813,7 @@ function _make_slug() {
 }
 
 function _create() {
-  invoke "_create(file='$1' backup='$2')"
+  invoke_detail "_create(file='$1' backup='$2')"
   if [ -z "$full_decision_record_path" ]
   then
     full_decision_record_path
@@ -748,18 +825,18 @@ function _create() {
   fi
   touch "$target_file"
   target_file="$file"
-  invoke_response "_create(file='$1')" "$target_file"
+  invoke_response_detail "_create(file='$1')" "$target_file"
 }
 
 function _write() {
-  invoke "_write(file='$1' message='$2')"
+  invoke_detail "_write(file='$1' message='$2')"
   if [ -z "$full_decision_record_path" ]
   then
     full_decision_record_path
   fi
   target_file="$full_decision_record_path/$1"
   echo "$2" >> "$target_file"
-  invoke_response "_write(file='$1' message='$2')" "<OUTPUT>"
+  invoke_response_detail "_write(file='$1' message='$2')" "<OUTPUT>"
 }
 
 function _set_status() {
@@ -785,9 +862,11 @@ function _set_status() {
   local _t_Status
   local _t_Accepted
   local _t_Proposed
-  _t_Status="$( _t "Status" )"
+  local _t_Work_In_Progress
+  _t_Status="$( _tt "Status" )"
   _t_Accepted="$( _t "Accepted" )"
   _t_Proposed="$( _t "Proposed" )"
+  _t_Work_In_Progress="$( _t "Work In Progress" )"
 
   local status_set
   status_set=0
@@ -813,7 +892,7 @@ function _set_status() {
         in_status=0
       elif [[ "$append" -eq 0 ]]
       then
-        if [[ "$line" =~ ^([\t ]*)($_t_Status: |)($_t_Accepted|$_t_Proposed|STATUS) ]]
+        if [[ "$line" =~ ^([\t ]*)($_t_Status: |)($_t_Accepted|$_t_Proposed|$_t_Work_In_Progress|STATUS) ]]
         then
           _write "$1~" "$line"
           _write "$1~" "$set_line"
@@ -862,6 +941,11 @@ function _get_title() {
   fi
 
   local title
+  local tmptitle
+  local defaulttitle
+  local recordnumber
+  local tmprecordnumber
+  local defaultrecordnumber
   local lastline
 
   if [ -z "$1" ]
@@ -878,28 +962,70 @@ function _get_title() {
     file="$1"
   fi
 
+  defaulttitle="$(basename "$(basename "$1" .md)" .rst | sed -E -e 's/^[0-9]{4}-(.*)$/\1/')"
+  defaultrecordnumber="$(basename "$(basename "$1" .md)" .rst | sed -E -e 's/^0*([0-9]+)-.*$/\1/')"
+
   while IFS="" read -r line || [ -n "$line" ]
   do
-    if [ -n "$title" ]
+    debug "recordnumber: $recordnumber title: $title line: $line"
+    if [ -n "$title" ] && [ -n "$recordnumber" ]
     then
       break
     elif [ "$decision_record_config_template_type" == "md" ]
     then
       if [[ "$line" =~ ^([\t ]*)\# ]]
       then
-        title="$(echo "$line" | cut -d\# -f2 | xargs )"
-      elif [[ "$line" =~ ^([\t ]*)title= ]]
+        tmptitle="$(echo "$line" | cut -d\# -f2 | sed -E -e 's/^\s*[0-9]+\.\s*//' | xargs )"
+        if [ -n "$tmptitle" ]
+        then
+          title="$tmptitle"
+          debug "Found title using ^\s*#"
+        fi
+        tmprecordnumber="$(echo "$line" | cut -d\# -f2 | sed -E -e 's/\..*//' | xargs )"
+        if [ -n "$tmprecordnumber" ]
+        then
+          recordnumber="$tmprecordnumber"
+          debug "Found recordnumber using ^\s*#"
+        fi
+      elif [[ "$line" =~ ^([\t ]*)[tT][iI][tT][lL][eE]: ]]
+      then
+        title="$(echo "$line" | cut -d: -f2 | xargs )"
+        debug "Found title using ^\s*title:"
+      elif [[ "$line" =~ ^([\t ]*)[nN][uU][mM][bB][eE][rR]: ]]
+      then
+        recordnumber="$(echo "$line" | cut -d: -f2 | xargs )"
+        debug "Found recordnumber using ^\s*number:"
+      elif [[ "$line" =~ ^([\t ]*)[tT][iI][tT][lL][eE]= ]]
       then
         title="$(echo "$line" | cut -d= -f2 | xargs )"
+        debug "Found title using ^\s*title="
+      elif [[ "$line" =~ ^([\t ]*)[nN][uU][mM][bB][eE][rR]= ]]
+      then
+        recordnumber="$(echo "$line" | cut -d= -f2 | xargs )"
+        debug "Found recordnumber using ^\s*number="
       fi
     elif [ "$decision_record_config_template_type" == "rst" ]
     then
       if [[ "$line" =~ ^([\t ]*)([\#\*=~][\#\*=~][\#\*=~]) ]]
       then
         title="$lastline"
-      elif [[ "$line" =~ ^([\t ]*)title= ]]
+        debug "Found title using underscore"
+      elif [[ "$line" =~ ^([\t ]*)[tT][iI][tT][lL][eE]\: ]]
+      then
+        title="$(echo "$line" | cut -d: -f2 | xargs )"
+        debug "Found title using ^\s*title:"
+      elif [[ "$line" =~ ^([\t ]*)[nN][uU][mM][bB][eE][rR]\: ]]
+      then
+        recordnumber="$(echo "$line" | cut -d: -f2 | xargs )"
+        debug "Found recordnumber using ^\s*number:"
+      elif [[ "$line" =~ ^([\t ]*)[tT][iI][tT][lL][eE]\= ]]
       then
         title="$(echo "$line" | cut -d= -f2 | xargs )"
+        debug "Found title using ^\s*title="
+      elif [[ "$line" =~ ^([\t ]*)[nN][uU][mM][bB][eE][rR]\= ]]
+      then
+        recordnumber="$(echo "$line" | cut -d= -f2 | xargs )"
+        debug "Found recordnumber using ^\s*number="
       fi
       lastline="$line"
     else
@@ -910,12 +1036,23 @@ function _get_title() {
 
   if [ -z "$title" ]
   then
+    title="$defaulttitle"
+  fi
+  if [ -z "$recordnumber" ]
+  then
+    recordnumber="$defaultrecordnumber"
+  fi
+
+  debug "Got title: $title and number: $recordnumber"
+
+  if [ -z "$title" ]
+  then
     error "Unable to find a title in $1. Please check and submit a PR."
     exit 1
   fi
 
-  invoke_response "_get_title(file='$1')" "$title"
-  echo "$title"
+  invoke_response "_get_title(file='$1')" "$recordnumber. $title"
+  echo "$recordnumber. $title"
 }
 
 function _find_record() {
@@ -979,6 +1116,19 @@ function _add_link() {
   else
     error "File format $decision_record_config_template_type is not understood yet. Please submit a PR."
     exit 1
+  fi
+
+  if [ -z "$decision_record_config_add_date_to_status" ]
+  then
+    decision_record_config_add_date_to_status
+  fi
+
+  if [ -n "$decision_record_config_add_date_to_status" ] && [ "$decision_record_config_add_date_to_status" != "no" ]
+  then
+    local _t_on
+    _t_on="$( _t "on #" | sed -e "s/\#/${DR_DATE:-$(date +%Y-%m-%d)}/" )"
+    from_line="$from_line $_t_on"
+    to_line="$to_line $_t_on"
   fi
 
   if [ "$5" == "Replace_Status" ]
@@ -1047,14 +1197,14 @@ function create_record() {
       status="$(_t "Proposed")"
       shift
       ;;
-    -D | --draft)
+    -W | --wip | --work-in-progress | --workinprogress)
       empty_command=0
       if [ -n "${status}" ]
       then
         error "Status already set"
         exit 1
       fi
-      status="$(_t "Draft")"
+      status="$(_t "Work In Progress")"
       shift
       ;;
     -S | --status)
@@ -1195,7 +1345,7 @@ function create_record() {
   fi
 
   record_file="$next_record-$(_make_slug "$title").$decision_record_config_template_type"
-  sed -e "s/NUMBER/${next_number}/ ; s/TITLE/${title}/ ; s/DATE/${DR_DATE:-$(date +%Y-%m-%d)}/ ; s/STATUS/${status}/" "$decision_record_config_template_path" > "$full_decision_record_path/$record_file"
+  sed -e "s/(\{\{[ \t]*|)NUMBER([ \t]*\}\}|)/${next_number}/g ; s/(\{\{[ \t]*|)TITLE([ \t]*\}\}|)/${title}/g ; s/(\{\{[ \t]*|)DATE([ \t]*\}\}|)/${DR_DATE:-$(date +%Y-%m-%d)}/g ; s/(\{\{[ \t]*|)STATUS([ \t]*\}\}|)/${status}/g" "$decision_record_config_template_path" > "$full_decision_record_path/$record_file"
 
   for record in "${!supersedes[@]}"
   do
@@ -1226,6 +1376,8 @@ function create_record() {
   then
     cat "$full_decision_record_path/$record_file"
   fi
+
+  ${VISUAL:-${EDITOR:-true}} "$full_decision_record_path/$record_file"
 }
 
 function main() {
@@ -1241,7 +1393,7 @@ decision_record_config_template_path=""
 decision_record_config_template_dir=""
 decision_record_config_template_type=""
 decision_record_config_template_file=""
-
+decision_record_config_add_date_to_status=""
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
 then

@@ -7,3 +7,6 @@
 [submodule "test/libs/bats-assert"]
 	path = test/libs/bats-assert
 	url = https://github.com/bats-core/bats-assert.git
+[submodule "test/libs/shdoc"]
+	path = test/libs/shdoc
+	url = https://github.com/reconquest/shdoc

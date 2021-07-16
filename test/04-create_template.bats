@@ -9,6 +9,7 @@ setup() {
   cp templates/template.en.md "$BATS_TEST_TMPDIR/doc/decision_records/.templates/template.md"
   cd "$BATS_TEST_TMPDIR"
   DR_DATE="1970-01-01"
+  VISUAL=true
 }
 
 teardown() {
@@ -231,4 +232,94 @@ This is the decision that was made.
 
 This is the consequence of the decision.
 EOF
+}
+
+@test "04-12 Creating a foreign language record contains expected text" {
+  # LOG_LEVEL=8
+  DEBUG_FILECONTENT=1
+  echo "language=de-DE" > .decisionrecords-config
+  run create_record a0412
+  assert_success
+  assert_output - <<EOF
+---
+title: a0412
+number: 1
+date: 1970-01-01
+---
+
+Datum: {{ date }}
+
+## Status
+
+Akzeptiert
+
+## Kontext
+
+Dies ist der Kontext.
+
+## Entscheidung
+
+Eine Entscheidung getroffen haben.
+
+## Konsequenz
+
+Dies ist die Folge der Entscheidung.
+EOF
+  run create_record -d 1 b0412
+  assert_success
+  assert_output - <<EOF
+---
+title: b0412
+number: 2
+date: 1970-01-01
+---
+
+Datum: {{ date }}
+
+## Status
+
+Akzeptiert
+Veraltet [1. a0412](0001-a0412.md)
+
+## Kontext
+
+Dies ist der Kontext.
+
+## Entscheidung
+
+Eine Entscheidung getroffen haben.
+
+## Konsequenz
+
+Dies ist die Folge der Entscheidung.
+EOF
+  run cat "doc/decision_records/0001-a0412.md"
+  assert_success
+  assert_output - <<EOF
+---
+title: a0412
+number: 1
+date: 1970-01-01
+---
+
+Datum: {{ date }}
+
+## Status
+
+Akzeptiert
+Veraltet von [2. b0412](0002-b0412.md)
+
+## Kontext
+
+Dies ist der Kontext.
+
+## Entscheidung
+
+Eine Entscheidung getroffen haben.
+
+## Konsequenz
+
+Dies ist die Folge der Entscheidung.
+EOF
+
 }
