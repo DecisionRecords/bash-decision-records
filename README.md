@@ -1,6 +1,8 @@
 # Decision Records Bash Script
 
-_**WARNING THIS IS INCOMPLETE, AND SHOULD NOT BE USED YET!**_
+_**WARNING THIS IS ARCHIVED, AND SHOULD NOT BE USED YET!**_
+
+Please see [rust-decision-records](https://github.com/DecisionRecords/rust-decision-records) instead.
 
 This script is intended to automate the process of adding and updating Decision Records (DR),
 sometimes known as "Architectural Decision Records" (ADR). A DR is a simple file which explains
