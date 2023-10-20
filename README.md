@@ -1,6 +1,6 @@
 # Decision Records Bash Script
 
-_**WARNING THIS IS ARCHIVED, AND SHOULD NOT BE USED YET!**_
+_**WARNING THIS IS ARCHIVED, AND SHOULD NOT BE USED!**_
 
 Please see [rust-decision-records](https://github.com/DecisionRecords/rust-decision-records) instead.
 
